@@ -38,6 +38,21 @@ class DownloadedFiles
 		FileUtils.rm_rf(dir_path) if Dir.exist?(dir_path)
 	end
 
+	def delete_files_for_version(type, slug, version)
+		dir_path = File.join(@storage_path, type, slug)
+		return unless Dir.exist?(dir_path)
+
+		Dir.glob(File.join(dir_path, "*")).each do |path|
+			next unless File.basename(path).include?(version)
+
+			if File.directory?(path)
+				FileUtils.rm_rf(path)
+			else
+				File.delete(path)
+			end
+		end
+	end
+
 	private
 
 	def file_path(type, slug, filename)

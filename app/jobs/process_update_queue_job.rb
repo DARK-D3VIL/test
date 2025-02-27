@@ -22,6 +22,8 @@ class ProcessUpdateQueueJob
 		item = update_core_packages(type, slug, item, downloaded_files) if type == 'core'
 
 		wp_object.store_object(type, slug, item)
+
+		cleanup_old_versions(wp_object, downloaded_files, type, slug)
 	end
 
 	private
@@ -76,6 +78,26 @@ class ProcessUpdateQueueJob
 		end
 
 		item
+	end
+
+	def cleanup_old_versions(wp_object, downloaded_files, type, slug)
+		max_versions = CONFIG.dig('file_retention', 'max_versions') || 5
+
+		all_versions_before = wp_object.get_object(type, slug)
+		return unless all_versions_before && all_versions_before.size > max_versions
+
+		versions_before = all_versions_before.map { |v| v['version'] }
+
+		wp_object.reduce_entries_by_count(type, slug, max_versions)
+
+		all_versions_after = wp_object.get_object(type, slug)
+		versions_after = all_versions_after.map { |v| v['version'] }
+
+		removed_versions = versions_before - versions_after
+
+		removed_versions.each do |version|
+			downloaded_files.delete_files_for_version(type, slug, version)
+		end
 	end
 end
 

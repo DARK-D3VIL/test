@@ -19,7 +19,8 @@ Sidekiq::Cron::Job.load_from_hash({
   'RefreshPluginsInfoJob' => {
     'class' => 'RefreshPluginsInfoJob',
     'cron'  => '0 0 * * *',  # Runs once a day at midnight
-    'queue' => 'default'
+    'queue' => 'default'sdsadas
+    
   },
   'RefreshThemesInfoJob' => {
     'class' => 'RefreshThemesInfoJob',
